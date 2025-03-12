@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${touristAttraction != null and touristAttraction.name != null} ? 'Opdater ' + touristAttraction.name : 'Tilføj Attraktion'"></title>
+    <link th:href="@{/attractionForm.css}" rel="stylesheet">
+</head>
+<body>
+<div align="center">
+    <div>
+        <h1 th:text="${touristAttraction != null and touristAttraction.name != null} ? 'Opdater ' + touristAttraction.name : 'Tilføj Attraktion'"></h1>
+
+        <form
+                role="form"
+                method="post"
+                th:action="@{${touristAttraction != null and touristAttraction.name != null} ? '/attractions/update' : '/attractions/save'}"
+                th:object="${touristAttraction}"
+        >
+            <!-- Name Input -->
+            <label for="name">Navn</label>
+            <input
+                    id="name"
+                    type="text"
+                    th:field="*{name}"
+                    th:value="${touristAttraction.name}"
+                    th:attr="readonly=${touristAttraction != null and touristAttraction.name != null ? 'readonly' : null}"
+                    required
+            />
+            <br/>
+
+            <!-- Description Input -->
+            <label for="description">Beskrivelse</label>
+            <textarea
+                    id="description"
+                    th:field="*{description}"
+                    required
+            ></textarea>
+            <br/>
+
+            <!-- City Dropdown -->
+            <label for="city">Vælg by</label>
+            <select id="city" th:field="*{city}">
+                <option value="">-- Vælg by --</option>
+                <option th:each="city : ${cities}" th:value="${city}" th:text="${city.displayName}"></option>
+            </select>
+            <br/>
+
+            <!-- Tags Selection -->
+            <label>Vælg tags</label>
+            <div class="tags-container">
+                <th:block th:each="tag : ${tags}">
+                    <input
+                            type="checkbox"
+                            th:field="*{tagList}"
+                            th:value="${tag}"
+                            id="tag-[[${tag}]]"
+                    />
+                    <label th:for="${'tag-' + tag}" th:text="${tag.displayName}"></label>
+                </th:block>
+            </div>
+            <br/>
+
+            <!-- Submit Button -->
+            <button type="submit">Færdig</button>
+            <br/>
+        </form>
+    </div>
+</div>
+</body>
+</html>

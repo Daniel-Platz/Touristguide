@@ -1,0 +1,84 @@
+package org.example.touristguidedel2.controller;
+
+import org.example.touristguidedel2.model.City;
+import org.example.touristguidedel2.model.Tag;
+import org.example.touristguidedel2.model.TouristAttraction;
+import org.example.touristguidedel2.service.TouristService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+@RequestMapping("/attractions")
+public class TouristController {
+
+    private final TouristService touristService;
+
+    public TouristController(TouristService touristService) {
+        this.touristService = touristService;
+    }
+
+    @GetMapping("")
+    public String getAttractions(Model model) {
+        model.addAttribute("attractions", touristService.getAttractions()); //Fetch all attractions
+        return "attraction-list";
+    }
+
+    @GetMapping("/{name}")
+    public String getAttractionByName(@PathVariable String name, Model model) {
+        TouristAttraction attraction = touristService.getAttractionByName(name);
+        model.addAttribute("attraction", attraction);
+        return "attraction-details";
+    }
+
+    @GetMapping("/{name}/tags")
+    public String showTags(@PathVariable String name, Model model) {
+        TouristAttraction attraction = touristService.getAttractionByName(name);
+        model.addAttribute("attraction", attraction);
+        return "tags";
+    }
+
+    @GetMapping("/add")
+    public String addAttraction(Model model) {
+        model.addAttribute("touristAttraction", new TouristAttraction());
+        model.addAttribute("cities", City.values());
+        model.addAttribute("tags", Tag.values());
+        return "attraction-form";
+    }
+
+    @PostMapping("/save")
+    public String saveAttraction(@ModelAttribute TouristAttraction touristAttraction) {
+        touristService.saveAttraction(touristAttraction);
+        return "redirect:/attractions";
+    }
+
+    @GetMapping("/{name}/edit")
+    public String editAttraction(@PathVariable String name, Model model) {
+        TouristAttraction touristAttraction = touristService.getAttractionByName(name);
+        if (touristAttraction == null) {
+            throw new IllegalArgumentException("Ugyldig attraktion"); //kan vise error html side
+        }
+        model.addAttribute("touristAttraction", touristAttraction);
+        model.addAttribute("cities", City.values());
+        model.addAttribute("tags", Tag.values());
+        return "attraction-form";
+    }
+
+    @PostMapping("/update")
+    public String updateAttraction(Model model, @ModelAttribute TouristAttraction touristAttraction) {
+        touristService.updateAttraction(touristAttraction);
+        model.addAttribute("updatedAttraction", touristAttraction);
+        return "redirect:/attractions";
+    }
+
+    @PostMapping("/delete/{name}")
+    public String deleteAttraction(@PathVariable String name, Model model) {
+        TouristAttraction deletedAttraction = touristService.deleteAttraction(name);
+        if (deletedAttraction == null) {
+            throw new IllegalArgumentException("Ugyldig attraktion"); //kan vise error html side
+        }
+        model.addAttribute("deletedAttraction", deletedAttraction);
+        return "redirect:/attractions";
+    }
+}
+
